@@ -9,7 +9,7 @@ public class CNum {
 		this.th = info[2]%TAU; this.am = info[3]*info[3];
 	}
 	
-	private void reCalcPol() { this.th = (float)Math.atan(this.im/this.re); this.am = this.re*this.re+this.im*this.im; }
+	private void reCalcPol() { this.th = (float)Math.atan2(this.im, this.re); this.am = this.re*this.re+this.im*this.im; }
 	
 	private void reCalcCar() { 
 		float am = (float)Math.sqrt(this.am);
