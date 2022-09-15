@@ -46,5 +46,9 @@ public class CNum {
 	
 	public void setF(double fr) { this.fr = fr; }
 	
+	public CNum conjugate() {
+		return CiSMath.fromCart(this.re, -this.im);
+	}
+	
 	public CNum clone() { return CiSMath.fromPolar(this.th, this.am); }
 }

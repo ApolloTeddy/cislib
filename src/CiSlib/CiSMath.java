@@ -41,6 +41,10 @@ public class CiSMath {
 		return fromPolar(TAU/root, 1);
 	}
 	
+	public static CNum complexConjugate(CNum x) {
+		return fromCart(x.re, -x.im);
+	}
+	
 	public static CNum fromPolar(double th, double am) {
 		return new CNum(new double[]{am*Math.cos(th), am*Math.sin(th), th, am});
 	}
