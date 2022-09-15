@@ -1,7 +1,7 @@
 package CiSlib;
 
 public class CNum {
-	protected double re, im, th, am;
+	protected double re, im, th, am, fr;
 	
 	protected CNum(double[] info) {
 		this.re = info[0]; this.im = info[1];
@@ -32,7 +32,7 @@ public class CNum {
 		reCalcCar();
 	}
 	
-	public double[] get() { return new double[]{this.re, this.im, this.th, this.am}; }
+	public double[] get() { return new double[]{this.re, this.im, this.th, this.am, this.fr}; }
 	
 	public void setP(double th, double am) {
 		this.th = th; this.am = am;
@@ -43,4 +43,8 @@ public class CNum {
 		this.re = re; this.im = im;
 		reCalcPol();
 	}
+	
+	public void setF(double fr) { this.fr = fr; }
+	
+	public CNum clone() { return CiSMath.fromPolar(this.th, this.am); }
 }
