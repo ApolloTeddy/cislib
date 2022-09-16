@@ -27,8 +27,18 @@ public class CNum {
 		reCalcCar();
 	}
 	
+	public void mult(double c) {
+		this.am *= c;
+		reCalcCar();
+	}
+	
 	public void div(CNum b) {
 		this.th = (this.th-b.th); this.am /= b.am;
+		reCalcCar();
+	}
+	
+	public void div(double c) {
+		this.am /= c;
 		reCalcCar();
 	}
 	

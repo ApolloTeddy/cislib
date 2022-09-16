@@ -14,6 +14,7 @@ public class CiSMath {
 			for(int n = 0; n < N; n++) {
 				tmp.add(mult(x_n[n], fromPolar(-(TAU * k * n)/N, 1)));
 			}
+			tmp.div(N);
 			
 			tmp.setF(k);
 			X[k] = tmp;
@@ -32,9 +33,17 @@ public class CiSMath {
 	public static CNum mult(CNum a, CNum b) {
 		return fromPolar(a.th + b.th, a.am * b.am);
 	}
+	
+	public static CNum mult(CNum a, double c) {
+		return fromPolar(a.th, a.am * c);
+	}
 
 	public static CNum div(CNum a, CNum b) {
 		return fromPolar(a.th - b.th, a.am / b.am);
+	}
+	
+	public static CNum div(CNum a, double c) {
+		return fromPolar(a.th, a.am / c);
 	}
 	
 	public static CNum rootOfUnity(int root) {
