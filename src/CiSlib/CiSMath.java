@@ -4,7 +4,7 @@ public class CiSMath {
 	public static final CNum i = fromCart(0, 1);
 	private static final double TAU = Math.PI * 2;
 	
-	public static CNum[] DFT(CNum[] x_n) {
+	public static CNum[] FSCDFT(CNum[] x_n) {
 		int N = x_n.length;
 		CNum[] X = new CNum[N];
 		
@@ -15,6 +15,23 @@ public class CiSMath {
 				tmp.add(mult(x_n[n], fromPolar(-(TAU * k * n)/N, 1)));
 			}
 			tmp.div(N);
+			
+			tmp.setF(k);
+			X[k] = tmp;
+		}
+		return X;
+	}
+	
+	public static CNum[] DFT(CNum[] x_n) {
+		int N = x_n.length;
+		CNum[] X = new CNum[N];
+		
+		for(int k = 0; k < N; k++) {
+			CNum tmp = new CNum(new double[]{0, 0, 0, 0});
+			
+			for(int n = 0; n < N; n++) {
+				tmp.add(mult(x_n[n], fromPolar(-(TAU * k * n)/N, 1)));
+			}
 			
 			tmp.setF(k);
 			X[k] = tmp;
