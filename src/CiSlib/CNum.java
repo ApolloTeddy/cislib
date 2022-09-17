@@ -60,5 +60,9 @@ public class CNum {
 		return CiSMath.fromCart(this.re, -this.im);
 	}
 	
+	public CNum limitMag(double mag) {
+		return this.am <= mag ? this : CiSMath.fromPolar(this.th, mag);
+	}
+	
 	public CNum clone() { return CiSMath.fromPolar(this.th, this.am); }
 }

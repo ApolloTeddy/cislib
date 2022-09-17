@@ -71,6 +71,11 @@ public class CiSMath {
 		return fromCart(x.re, -x.im);
 	}
 	
+	public static CNum limitMag(CNum a, double mag) {
+		double[] inf = a.get();
+		return inf[3] <= mag ? a : fromPolar(inf[2], mag);
+	}
+	
 	public static CNum fromPolar(double th, double am) {
 		return new CNum(new double[]{am*Math.cos(th), am*Math.sin(th), th, am});
 	}
