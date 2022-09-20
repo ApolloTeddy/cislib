@@ -59,7 +59,7 @@ public class CiSMath {
 		return 0;
 	}
 	
-	private static int len(ArrayList<CNum[]> groups) {
+	public static int len(ArrayList<CNum[]> groups) {
 		int length = 0;
 		for(CNum[] group : groups) for(CNum el : group) length++;
 		return length;
@@ -130,7 +130,7 @@ public class CiSMath {
 		ArrayList<CNum> group = new ArrayList<CNum>(); // new empty CNum arraylist
 		
 		int ind = (int)( Math.random()*ungrouped.size() );
-		group.add( ungrouped.get(ind).clone() );
+		group.add( ungrouped.get(ind) );
 		ungrouped.remove(ind);
 		System.out.println(" Random point picked.");
 		
@@ -150,33 +150,42 @@ public class CiSMath {
 		if(ungrouped.size() == 0) return false;
 		
 		CNum last = group.get( group.size()-1 );
-		ArrayList<CNum> neighbors = new ArrayList<CNum>(Arrays.asList( tree.queryC( last, dist ) ));
+		
+		double newDist = 0.01;
+		
+		while(tree.queryC(last, newDist).length - 1 == 0) newDist += 0.01;
+		System.out.println(" Distance calculation complete.");
+		
+		ArrayList<CNum> neighbors = new ArrayList<CNum>(Arrays.asList( tree.queryC(last, newDist) ));
 		System.out.println("  Start complete.");
 		
-		for(CNum n : neighbors) if(n == last) neighbors.remove(n);
-		System.out.println("  Removed last.");
+		for(int i = 0; i < neighbors.size(); i++) {
+			CNum n = neighbors.get(i);
+			if(n.im == last.im && n.re == last.re) {
+				i--;
+				neighbors.remove(n);
+				System.out.println("  Removed last.");
+			}
+		}
 		
-		
-		if(neighbors.size() > 0) {
+		if(Math.abs(dist-newDist)/dist < 5) {
 			if( contains(ungrouped, neighbors.get(0)) ) {
 				
 				int ind = getInd(ungrouped, neighbors.get(0));
+				group.add( ungrouped.get(ind) );
+				ungrouped.remove(ind);
+				
+				System.out.println("  Added to path: " + ungrouped.size());
+				return recursiveGroupFunction(ungrouped, group, tree, newDist);
+				
+			} else if(neighbors.size() > 1 && contains(ungrouped, neighbors.get(1))) {
+				
+				int ind = getInd(ungrouped, neighbors.get(1));
 				group.add( ungrouped.get(ind).clone() );
 				ungrouped.remove(ind);
 				
 				System.out.println("  Added to path: " + ungrouped.size());
-				return recursiveGroupFunction(ungrouped, group, tree, dist);
-				
-			} else if(neighbors.size() > 1) {
-				if( contains(ungrouped, neighbors.get(1)) ) {
-				
-					int ind = getInd(ungrouped, neighbors.get(1));
-					group.add( ungrouped.get(ind).clone() );
-					ungrouped.remove(ind);
-					
-					System.out.println("  Added to path: " + ungrouped.size());
-					return recursiveGroupFunction(ungrouped, group, tree, dist);
-				}
+				return recursiveGroupFunction(ungrouped, group, tree, newDist);
 			}
 		}
 		boolean moreGroups = ungrouped.size() > 0;
