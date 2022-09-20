@@ -56,12 +56,19 @@ public class CNum {
 	
 	public void setF(double fr) { this.fr = fr; }
 	
-	public CNum conjugate() {
-		return CiSMath.fromCart(this.re, -this.im);
+	public void conjugate() {
+		this.im *= -1;
+		reCalcPol();
 	}
 	
-	public CNum limitMag(double mag) {
-		return this.am <= mag ? this : CiSMath.fromPolar(this.th, mag);
+	public void limitMag(double mag) {
+		if(this.am > mag) this.am = mag;
+		reCalcCar();
+	}
+	
+	public void setMag(double mag) {
+		this.am = mag;
+		reCalcCar();
 	}
 	
 	public CNum clone() { return CiSMath.fromPolar(this.th, this.am); }
