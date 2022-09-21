@@ -7,10 +7,10 @@ public class CiSMath {
 	public static final CNum i = fromCart(0, 1);
 	private static final double TAU = Math.PI * 2;
 	
-	public CNum[] GSP(CNum[] points) {
+	public CNum[] GSP(CNum[] points, int iterations) {
 		Tree tree = new Tree(boundingSq(points), 10);
 		System.out.println("Setup Complete.");
-		ArrayList<CNum[]> groups = makeGroups(tree.buildTree(points));
+		ArrayList<CNum[]> groups = makeGroups(tree.buildTree(points), iterations);
 		System.out.println("Step 1 Complete.");
 		shiftArrays(groups, tree);
 		System.out.println("Step 2 Complete.");
@@ -102,13 +102,13 @@ public class CiSMath {
 		for(int i = 0; i < group.length; i++) swapArrEle(group, i, (i + amount)%group.length);
 	}
 	
-	public ArrayList<CNum[]> makeGroups(Tree tree) {
+	public ArrayList<CNum[]> makeGroups(Tree tree, int iterations) {
 		System.out.println("starting..");
 		ArrayList<CNum[]> groups = new ArrayList<CNum[]>(); // new empty CNum[] arraylist
 		System.out.println("tree..");
 		ArrayList<CNum> ungrouped = new ArrayList<CNum>( Arrays.asList(tree.all()) ); // new CNum arraylist with all of the elements of the tree
 		System.out.println("start complete.");
-		recursiveGroupFunction(groups, ungrouped, tree); // sends empty group list, list of ungrouped elements, and the tree to be recursed
+		recursiveGroupFunction(groups, ungrouped, tree, iterations); // sends empty group list, list of ungrouped elements, and the tree to be recursed
 		System.out.println("recursion complete.");
 		for(int i = 0; i < groups.size(); i++) if(groups.get(0).length < groups.get(i).length) swapArrEle(groups, 0, i);
 		System.out.println("sorting complete.");
@@ -126,67 +126,65 @@ public class CiSMath {
 		arr[indB] = tmp;
 	}
 	
-	private static void recursiveGroupFunction(ArrayList<CNum[]> groups, ArrayList<CNum> ungrouped, Tree tree) { // groups is empty upon first call, ungrouped has all elements on first call
+	private static void recursiveGroupFunction(ArrayList<CNum[]> groups, ArrayList<CNum> ungrouped, Tree tree, int iterations) { // groups is empty upon first call, ungrouped has all elements on first call
 		ArrayList<CNum> group = new ArrayList<CNum>(); // new empty CNum arraylist
 		
-		int ind = (int)( Math.random()*ungrouped.size() );
-		group.add( ungrouped.get(ind) );
+		int ind = (int)( Math.random()*ungrouped.size() ), iter = 0;
+		CNum sel = ungrouped.get(ind);
+		
+		while(tree.queryC(sel, 1.1).length - 1 > 1 && iter < iterations) {
+			ind = (int)( Math.random()*ungrouped.size() );
+			sel = ungrouped.get(ind);
+			iter++;
+		};
+		
+		group.add( sel );
 		ungrouped.remove(ind);
 		System.out.println(" Random point picked.");
 		
-		double dist = 0.01;
-		while(tree.queryC(group.get(0), dist).length - 1 == 0) dist += 0.01;
-		System.out.println(" Distance calculation complete.");
 		
-		boolean moreGroups = recursiveGroupFunction(ungrouped, group, tree, dist);
+		boolean moreGroups = recursiveGroupFunction(ungrouped, group, tree);
 		System.out.println(" More groups done: " + moreGroups);
 		
 		groups.add(group.toArray(new CNum[group.size()]));
 		
-		if(moreGroups) recursiveGroupFunction(groups, ungrouped, tree);
+		if(moreGroups) recursiveGroupFunction(groups, ungrouped, tree, iterations);
 		else return;
 	}
-	private static boolean recursiveGroupFunction(ArrayList<CNum> ungrouped, ArrayList<CNum> group, Tree tree, double dist) {
+	private static boolean recursiveGroupFunction(ArrayList<CNum> ungrouped, ArrayList<CNum> group, Tree tree) {
 		if(ungrouped.size() == 0) return false;
 		
 		CNum last = group.get( group.size()-1 );
 		
-		double newDist = 0.01;
-		
-		while(tree.queryC(last, newDist).length - 1 == 0) newDist += 0.01;
-		System.out.println(" Distance calculation complete.");
-		
-		ArrayList<CNum> neighbors = new ArrayList<CNum>(Arrays.asList( tree.queryC(last, newDist) ));
+		ArrayList<CNum> neighbors = new ArrayList<CNum>(Arrays.asList( tree.queryC(last, 1.1) ));
 		System.out.println("  Start complete.");
 		
 		for(int i = 0; i < neighbors.size(); i++) {
 			CNum n = neighbors.get(i);
 			if(n.im == last.im && n.re == last.re) {
+				neighbors.remove(i);
 				i--;
-				neighbors.remove(n);
 				System.out.println("  Removed last.");
 			}
 		}
 		
-		if(Math.abs(dist-newDist)/dist < 5) {
-			if( contains(ungrouped, neighbors.get(0)) ) {
-				
-				int ind = getInd(ungrouped, neighbors.get(0));
-				group.add( ungrouped.get(ind) );
-				ungrouped.remove(ind);
-				
-				System.out.println("  Added to path: " + ungrouped.size());
-				return recursiveGroupFunction(ungrouped, group, tree, newDist);
-				
-			} else if(neighbors.size() > 1 && contains(ungrouped, neighbors.get(1))) {
-				
-				int ind = getInd(ungrouped, neighbors.get(1));
-				group.add( ungrouped.get(ind).clone() );
-				ungrouped.remove(ind);
-				
-				System.out.println("  Added to path: " + ungrouped.size());
-				return recursiveGroupFunction(ungrouped, group, tree, newDist);
-			}
+		if( neighbors.size() > 0 && contains(ungrouped, neighbors.get(0)) ) {
+			
+			int ind = getInd(ungrouped, neighbors.get(0));
+			group.add( ungrouped.get(ind) );
+			ungrouped.remove(ind);
+			
+			System.out.println("  Added to path: " + ungrouped.size());
+			return recursiveGroupFunction(ungrouped, group, tree);
+			
+		} else if(neighbors.size() > 1 && contains(ungrouped, neighbors.get(1))) {
+			
+			int ind = getInd(ungrouped, neighbors.get(1));
+			group.add( ungrouped.get(ind) );
+			ungrouped.remove(ind);
+			
+			System.out.println("  Added to path: " + ungrouped.size());
+			return recursiveGroupFunction(ungrouped, group, tree);
 		}
 		boolean moreGroups = ungrouped.size() > 0;
 		System.out.println("  more groups: " + moreGroups);
