@@ -52,16 +52,16 @@ public class CiSMath {
 	
 	private static int getInd(CNum[] arr, CNum el) {
 		for(int i = 0; i < arr.length; i++) if(el.re == arr[i].re && el.im == arr[i].im) return i;
-		return 0;
+		return -1;
 	}
 	private static int getInd(ArrayList<CNum> arr, CNum el) {
 		for(int i = 0; i < arr.size(); i++) if(el.re == arr.get(i).re && el.im == arr.get(i).im) return i;
-		return 0;
+		return -1;
 	}
 	
 	public static int len(ArrayList<CNum[]> groups) {
 		int length = 0;
-		for(CNum[] group : groups) for(CNum el : group) length++;
+		for(int i = 0; i < groups.size(); i++) for(int j = 0; j < groups.get(i).length; j++) length++;
 		return length;
 	}
 	
@@ -102,19 +102,6 @@ public class CiSMath {
 		for(int i = 0; i < group.length; i++) swapArrEle(group, i, (i + amount)%group.length);
 	}
 	
-	public ArrayList<CNum[]> makeGroups(Tree tree, int iterations) {
-		System.out.println("starting..");
-		ArrayList<CNum[]> groups = new ArrayList<CNum[]>(); // new empty CNum[] arraylist
-		System.out.println("tree..");
-		ArrayList<CNum> ungrouped = new ArrayList<CNum>( Arrays.asList(tree.all()) ); // new CNum arraylist with all of the elements of the tree
-		System.out.println("start complete.");
-		recursiveGroupFunction(groups, ungrouped, tree, iterations); // sends empty group list, list of ungrouped elements, and the tree to be recursed
-		System.out.println("recursion complete.");
-		for(int i = 0; i < groups.size(); i++) if(groups.get(0).length < groups.get(i).length) swapArrEle(groups, 0, i);
-		System.out.println("sorting complete.");
-		return groups;
-	}
-	
 	private static void swapArrEle(ArrayList<CNum[]> arr, int indA, int indB) {
 		CNum[] tmp = arr.get(indA).clone();
 		arr.set(indA, arr.get(indB).clone());
@@ -126,70 +113,6 @@ public class CiSMath {
 		arr[indB] = tmp;
 	}
 	
-	private static void recursiveGroupFunction(ArrayList<CNum[]> groups, ArrayList<CNum> ungrouped, Tree tree, int iterations) { // groups is empty upon first call, ungrouped has all elements on first call
-		ArrayList<CNum> group = new ArrayList<CNum>(); // new empty CNum arraylist
-		
-		int ind = (int)( Math.random()*ungrouped.size() ), iter = 0;
-		CNum sel = ungrouped.get(ind);
-		
-		while(tree.queryC(sel, 1.1).length - 1 > 1 && iter < iterations) {
-			ind = (int)( Math.random()*ungrouped.size() );
-			sel = ungrouped.get(ind);
-			iter++;
-		};
-		
-		group.add( sel );
-		ungrouped.remove(ind);
-		System.out.println(" Random point picked.");
-		
-		
-		boolean moreGroups = recursiveGroupFunction(ungrouped, group, tree);
-		System.out.println(" More groups done: " + moreGroups);
-		
-		groups.add(group.toArray(new CNum[group.size()]));
-		
-		if(moreGroups) recursiveGroupFunction(groups, ungrouped, tree, iterations);
-		else return;
-	}
-	private static boolean recursiveGroupFunction(ArrayList<CNum> ungrouped, ArrayList<CNum> group, Tree tree) {
-		if(ungrouped.size() == 0) return false;
-		
-		CNum last = group.get( group.size()-1 );
-		
-		ArrayList<CNum> neighbors = new ArrayList<CNum>(Arrays.asList( tree.queryC(last, 1.1) ));
-		System.out.println("  Start complete.");
-		
-		for(int i = 0; i < neighbors.size(); i++) {
-			CNum n = neighbors.get(i);
-			if(n.im == last.im && n.re == last.re) {
-				neighbors.remove(i);
-				i--;
-				System.out.println("  Removed last.");
-			}
-		}
-		
-		if( neighbors.size() > 0 && contains(ungrouped, neighbors.get(0)) ) {
-			
-			int ind = getInd(ungrouped, neighbors.get(0));
-			group.add( ungrouped.get(ind) );
-			ungrouped.remove(ind);
-			
-			System.out.println("  Added to path: " + ungrouped.size());
-			return recursiveGroupFunction(ungrouped, group, tree);
-			
-		} else if(neighbors.size() > 1 && contains(ungrouped, neighbors.get(1))) {
-			
-			int ind = getInd(ungrouped, neighbors.get(1));
-			group.add( ungrouped.get(ind) );
-			ungrouped.remove(ind);
-			
-			System.out.println("  Added to path: " + ungrouped.size());
-			return recursiveGroupFunction(ungrouped, group, tree);
-		}
-		boolean moreGroups = ungrouped.size() > 0;
-		System.out.println("  more groups: " + moreGroups);
-		return moreGroups;	
-	}
 	
 	private static double[] boundingSq(CNum[] points) {
 		double[] scores = new double[4];
